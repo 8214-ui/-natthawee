@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>แบบทดสอบของฉัน</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,"Tahoma",sans-serif;background:linear-gradient(135deg,#eff9ff,#fff8e8);color:#12213a}.wrap{max-width:900px;margin:0 auto;padding:28px 16px}.hero{background:#fffdf8;border-radius:24px;padding:28px;box-shadow:0 10px 30px #00000012;margin-bottom:20px}.eyebrow{font-weight:800;color:#1677d2;font-size:14px}.title{font-size:32px;font-weight:800;margin:8px 0}.desc{color:#64748b;line-height:1.7}.card{background:#fff;border-radius:18px;padding:22px;margin:16px 0;box-shadow:0 6px 20px #00000010}.q{font-size:20px;font-weight:700;margin-bottom:14px}.opt{display:block;padding:12px 14px;margin:9px 0;border:2px solid #e5e7eb;border-radius:12px;cursor:pointer;transition:.15s}.opt:hover{border-color:#1677d2;background:#f5fbff}.opt input{margin-right:10px}.btn{border:0;border-radius:12px;padding:14px 20px;background:#1677d2;color:#fff;font-size:16px;font-weight:700;cursor:pointer}.btn.secondary{background:#64748b}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}.result{display:none;text-align:center}.score{font-size:56px;font-weight:900;color:#1677d2}.small{color:#64748b}.progress{height:10px;background:#e5e7eb;border-radius:99px;overflow:hidden}.bar{height:100%;width:0;background:#1677d2;transition:.2s}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <section class="hero">
+    <div class="eyebrow" id="eyebrow"></div>
+    <div class="title" id="title"></div>
+    <div class="desc" id="description"></div>
+    <div class="progress"><div class="bar" id="bar"></div></div>
+  </section>
+
+  <main id="quiz"></main>
+  <div class="actions" id="actions">
+    <button class="btn" onclick="submitQuiz()">ส่งคำตอบ</button>
+    <button class="btn secondary" onclick="resetQuiz()">เริ่มใหม่</button>
+  </div>
+
+  <section class="hero result" id="result">
+    <div class="eyebrow">RESULT</div>
+    <div class="title">ทำแบบทดสอบเสร็จแล้ว!</div>
+    <div class="score"><span id="score">0</span><span> / </span><span id="total">0</span></div>
+    <div class="small" id="resultText"></div>
+    <div class="actions" style="justify-content:center"><button class="btn" onclick="resetQuiz()">ทำแบบทดสอบอีกครั้ง</button></div>
+  </section>
+</div>
+
+<script>
+// ==========================================================
+// EDIT THESE SETTINGS
+// ==========================================================
+const QUIZ = {
+  // 1) Website / quiz name
+  title: "แบบทดสอบการใช้งาน Thonny มัธยมศึกษาปีที่ 2",
+  eyebrow: "THORNY QUIZ • 20 QUESTIONS",
+  description: "ทบทวนความเข้าใจเกี่ยวกับเครื่องมือและการเขียนโปรแกรมภาษา Python ด้วย Thonny จำนวน 20 ข้อ",
+
+  // 2) Score settings
+  pointsPerQuestion: 1,
+  passScore: 10,
+
+  // 3) Questions, choices, and correct answer
+  questions: [
+    {q:"โปรแกรม Thonny มีหน้าที่หลักคืออะไร?", a:["วาดภาพกราฟิก","เขียนและรันโปรแกรมภาษา Python","พิมพ์เอกสารรายงาน","สร้างงานนำเสนอ"], correct:1},
+    {q:"เมื่อต้องการสร้างไฟล์โปรแกรมใหม่ใน Thonny ควรเลือกเมนูใด?", a:["File > New","Edit > Copy","View > Zoom","Tools > Options"], correct:0},
+    {q:"นามสกุลไฟล์ของโปรแกรมภาษา Python คือข้อใด?", a:[".docx",".pptx",".py",".xlsx"], correct:2},
+    {q:"ปุ่ม Run ใน Thonny ใช้สำหรับอะไร?", a:["บันทึกไฟล์","สั่งให้โปรแกรมทำงาน","ปิดโปรแกรม","เปลี่ยนขนาดตัวอักษร"], correct:1},
+    {q:"ปุ่มลัดที่นิยมใช้เพื่อรันโปรแกรมใน Thonny คือข้อใด?", a:["F1","F5","F8","F5 หรือปุ่ม Run"], correct:3},
+    {q:"บริเวณ Shell ใน Thonny มีประโยชน์อย่างไร?", a:["แสดงผลลัพธ์และรับคำสั่งแบบโต้ตอบ","ใช้จัดเก็บรูปภาพเท่านั้น","ใช้สร้างตารางคำนวณ","ใช้ตรวจไวรัสในเครื่อง"], correct:0},
+    {q:"คำสั่งใดใช้แสดงข้อความออกทางหน้าจอในภาษา Python?", a:["show()","write()","print()","display()"], correct:2},
+    {q:"หากต้องการบันทึกไฟล์ที่กำลังเขียน ควรใช้คำสั่งใด?", a:["File > Print","File > Save","Edit > Paste","View > Shell"], correct:1},
+    {q:"สัญลักษณ์ # ในภาษา Python ใช้สำหรับอะไร?", a:["เขียนคำอธิบายหรือคอมเมนต์","เริ่มต้นการคำนวณ","จบโปรแกรม","แสดงผลข้อความ"], correct:0},
+    {q:"หากโปรแกรมทำงานไม่หยุด ควรใช้ปุ่มใดใน Thonny?", a:["New","Save","Open","Stop / Interrupt"], correct:3},
+    {q:"ข้อใดเป็นชื่อตัวแปรที่เหมาะสมในภาษา Python?", a:["2score","student_score","student score","class"], correct:1},
+    {q:"คำสั่ง input() มีหน้าที่ใด?", a:["ลบข้อมูล","หยุดโปรแกรม","รับข้อมูลจากผู้ใช้","บันทึกโปรแกรม"], correct:2},
+    {q:"หากพบข้อความสีแดงใน Shell ส่วนใหญ่มักหมายถึงอะไร?", a:["โปรแกรมเกิดข้อผิดพลาด","บันทึกไฟล์สำเร็จ","เชื่อมต่ออินเทอร์เน็ตสำเร็จ","เปลี่ยนภาษาโปรแกรมสำเร็จ"], correct:0},
+    {q:"Thonny เหมาะกับผู้เริ่มต้นเขียนโปรแกรมเพราะเหตุใด?", a:["ใช้ได้เฉพาะบนโทรศัพท์","ไม่มีหน้าต่างแสดงผล","ใช้เขียนได้เฉพาะภาษาอังกฤษ","มีหน้าตาเรียบง่ายและมีเครื่องมือช่วยเรียนรู้"], correct:3},
+    {q:"เมนู View ใน Thonny ใช้สำหรับจัดการเรื่องใดเป็นหลัก?", a:["การส่งอีเมล","การแสดงหรือซ่อนส่วนต่าง ๆ ของหน้าจอ","การสร้างเกม","การติดตั้งระบบปฏิบัติการ"], correct:1},
+    {q:"ข้อใดเป็นผลลัพธ์ของคำสั่ง print(2 + 3)?", a:["23","2 + 3","5","Error"], correct:2},
+    {q:"ก่อนปิดโปรแกรม Thonny ควรทำสิ่งใด?", a:["บันทึกไฟล์งานให้เรียบร้อย","ลบโค้ดทั้งหมด","ปิดเครื่องทันที","ล้างหน้าจอ Shell เสมอ"], correct:0},
+    {q:"คำว่า Debug ใน Thonny เกี่ยวข้องกับเรื่องใด?", a:["การตกแต่งหน้าจอ","การค้นหาและแก้ไขข้อผิดพลาดของโปรแกรม","การพิมพ์เอกสาร","การเชื่อมต่อเครื่องพิมพ์"], correct:1},
+    {q:"หากต้องการเปิดไฟล์โปรแกรมที่มีอยู่แล้ว ควรเลือกคำสั่งใด?", a:["File > New","File > Exit","Edit > Undo","File > Open"], correct:3},
+    {q:"ข้อใดเป็นประโยชน์ของการจัดย่อหน้า (indentation) ใน Python?", a:["ทำให้ไฟล์มีขนาดเล็กลง","ทำให้พิมพ์เร็วขึ้น","บอกขอบเขตของคำสั่ง เช่น ภายใน if หรือ loop","เปลี่ยนสีตัวอักษรใน Shell"], correct:2}
+  ]
+};
+
+let submitted = false;
+
+function init(){
+  document.title = QUIZ.title;
+  document.getElementById('title').textContent = QUIZ.title;
+  document.getElementById('eyebrow').textContent = QUIZ.eyebrow;
+  document.getElementById('description').textContent = QUIZ.description;
+  renderQuiz();
+}
+
+function renderQuiz(){
+  const quiz = document.getElementById('quiz');
+  quiz.innerHTML = '';
+  QUIZ.questions.forEach((item, i) => {
+    const card = document.createElement('section');
+    card.className = 'card';
+    card.innerHTML = `<div class="q">ข้อ ${i+1}. ${escapeHTML(item.q)}</div>` +
+      item.a.map((choice,j)=>`<label class="opt"><input type="radio" name="q${i}" value="${j}" onchange="updateProgress()">${escapeHTML(choice)}</label>`).join('');
+    quiz.appendChild(card);
+  });
+  updateProgress();
+}
+
+function updateProgress(){
+  let answered=0;
+  QUIZ.questions.forEach((_,i)=>{if(document.querySelector(`input[name=q${i}]:checked`)) answered++;});
+  document.getElementById('bar').style.width = `${answered/QUIZ.questions.length*100}%`;
+}
+
+function submitQuiz(){
+  let score=0, answered=0;
+  QUIZ.questions.forEach((item,i)=>{
+    const el=document.querySelector(`input[name=q${i}]:checked`);
+    if(el){
+      answered++;
+      if(Number(el.value)===item.correct) score += QUIZ.pointsPerQuestion;
+    }
+  });
+  if(answered < QUIZ.questions.length){
+    alert(`กรุณาตอบให้ครบ ${QUIZ.questions.length} ข้อก่อนส่งคำตอบ`);
+    return;
+  }
+  submitted=true;
+  document.getElementById('score').textContent=score;
+  document.getElementById('total').textContent=QUIZ.questions.length*QUIZ.pointsPerQuestion;
+  document.getElementById('resultText').textContent = score >= QUIZ.passScore ? `ผ่านเกณฑ์ ${QUIZ.passScore} คะแนน` : `ยังไม่ผ่านเกณฑ์ ${QUIZ.passScore} คะแนน`;
+  document.getElementById('result').style.display='block';
+  document.getElementById('result').scrollIntoView({behavior:'smooth'});
+}
+
+function resetQuiz(){
+  submitted=false;
+  document.getElementById('result').style.display='none';
+  document.querySelectorAll('input[type=radio]').forEach(x=>x.checked=false);
+  updateProgress();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function escapeHTML(str){return String(str).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
+init();
+</script>
+</body>
+</html>
