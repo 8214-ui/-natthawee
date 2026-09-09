@@ -1,0 +1,714 @@
+```html
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>แบบทดสอบของอาณัฐ</title>
+
+<style>
+*{
+  box-sizing:border-box;
+}
+
+body{
+  margin:0;
+  font-family:Arial,"Tahoma",sans-serif;
+  background:linear-gradient(135deg,#eff9ff,#fff8e8);
+  color:#12213a;
+}
+
+.wrap{
+  max-width:900px;
+  margin:0 auto;
+  padding:28px 16px;
+}
+
+.hero{
+  background:#fffdf8;
+  border-radius:24px;
+  padding:28px;
+  box-shadow:0 10px 30px #00000012;
+  margin-bottom:20px;
+}
+
+.eyebrow{
+  font-weight:800;
+  color:#1677d2;
+  font-size:14px;
+}
+
+.title{
+  font-size:32px;
+  font-weight:800;
+  margin:8px 0;
+}
+
+.desc{
+  color:#64748b;
+  line-height:1.7;
+}
+
+.card{
+  background:#fff;
+  border-radius:18px;
+  padding:22px;
+  margin:16px 0;
+  box-shadow:0 6px 20px #00000010;
+}
+
+.q{
+  font-size:20px;
+  font-weight:700;
+  margin-bottom:14px;
+}
+
+.opt{
+  display:block;
+  padding:12px 14px;
+  margin:9px 0;
+  border:2px solid #e5e7eb;
+  border-radius:12px;
+  cursor:pointer;
+  transition:.15s;
+}
+
+.opt:hover{
+  border-color:#1677d2;
+  background:#f5fbff;
+}
+
+.opt input{
+  margin-right:10px;
+}
+
+.btn{
+  border:0;
+  border-radius:12px;
+  padding:14px 20px;
+  background:#1677d2;
+  color:#fff;
+  font-size:16px;
+  font-weight:700;
+  cursor:pointer;
+}
+
+.btn.secondary{
+  background:#64748b;
+}
+
+.actions{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:20px;
+}
+
+.result{
+  display:none;
+  text-align:center;
+}
+
+.score{
+  font-size:56px;
+  font-weight:900;
+  color:#1677d2;
+}
+
+.small{
+  color:#64748b;
+}
+
+.progress{
+  height:10px;
+  background:#e5e7eb;
+  border-radius:99px;
+  overflow:hidden;
+}
+
+.bar{
+  height:100%;
+  width:0;
+  background:#1677d2;
+  transition:.2s;
+}
+</style>
+</head>
+
+<body>
+
+<div class="wrap">
+
+  <section class="hero">
+
+    <div class="eyebrow" id="eyebrow"></div>
+
+    <div class="title" id="title"></div>
+
+    <div class="desc" id="description"></div>
+
+    <div class="progress">
+      <div class="bar" id="bar"></div>
+    </div>
+
+  </section>
+
+  <main id="quiz"></main>
+
+  <div class="actions" id="actions">
+
+    <button class="btn" onclick="submitQuiz()">
+      ส่งคำตอบ
+    </button>
+
+    <button class="btn secondary" onclick="resetQuiz()">
+      เริ่มใหม่
+    </button>
+
+  </div>
+
+  <section class="hero result" id="result">
+
+    <div class="eyebrow">
+      RESULT
+    </div>
+
+    <div class="title">
+      ทำแบบทดสอบเสร็จแล้ว!
+    </div>
+
+    <div class="score">
+
+      <span id="score">0</span>
+
+      <span> / </span>
+
+      <span id="total">0</span>
+
+    </div>
+
+    <div class="small" id="resultText"></div>
+
+    <div
+      class="actions"
+      style="justify-content:center"
+    >
+
+      <button
+        class="btn"
+        onclick="resetQuiz()"
+      >
+        ทำแบบทดสอบอีกครั้ง
+      </button>
+
+    </div>
+
+  </section>
+
+</div>
+
+<script>
+
+/* ==========================================================
+   QUIZ SETTINGS
+   ========================================================== */
+
+const QUIZ = {
+
+  /* Website name */
+
+  title: "แบบทดสอบของอาณัฐ",
+
+  /* Text above the title */
+
+  eyebrow: "แบบทดสอบของอาณัฐ • 20 ข้อ",
+
+  /* Description */
+
+  description:
+    "แบบทดสอบออนไลน์ จำนวน 20 ข้อ",
+
+  /* Score */
+
+  pointsPerQuestion: 1,
+
+  /* Passing score */
+
+  passScore: 10,
+
+  /* Questions */
+
+  questions: [
+
+    {
+      q:"โปรแกรม Thonny มีหน้าที่หลักคืออะไร?",
+      a:[
+        "สำราญ แตงโม",
+        "สำราญ แตงโม",
+        "สำราญ แตงโม",
+        "สำราญ แตงโม"
+      ],
+      correct:0
+    },
+
+    {
+      q:"เมื่อต้องการสร้างไฟล์โปรแกรมใหม่ใน Thonny ควรเลือกเมนูใด?",
+      a:[
+        "สำราญ แตงโม",
+        "สำราญ แตงโม",
+        "สำราญ แตงโม",
+        "สำราญ แตงโม"
+      ],
+      correct:0
+    },
+
+    {
+      q:"นามสกุลไฟล์ของโปรแกรมภาษา Python คือข้อใด?",
+      a:[
+        "สำราญ แตงโม",
+        "สำราญ แตงโม",
+        "สำราญ แตงโม",
+        "สำราญ แตงโม"
+      ],
+      correct:0
+    },
+
+    {
+      q:"ปุ่ม Run ใน Thonny ใช้สำหรับอะไร?",
+      a:[
+        "สำราญ แตงโม",
+        "สำราญ แตงโม",
+        "สำราญ แตงโม",
+        "สำราญ แตงโม"
+      ],
+      correct:0
+    },
+
+    {
+      q:"ปุ่มลัดที่นิยมใช้เพื่อรันโปรแกรมใน Thonny คือข้อใด?",
+      a:[
+        "สำราญ แตงโม",
+        "สำราญ แตงโม",
+        "สำราญ แตงโม",
+        "สำราญ แตงโม"
+      ],
+      correct:0
+    },
+
+    {
+      q:"บริเวณ Shell ใน Thonny มีประโยชน์อย่างไร?",
+      a:[
+        "สำราญ แตงโม",
+        "สำราญ แตงโม",
+        "สำราญ แตงโม",
+        "สำราญ แตงโม"
+      ],
+      correct:0
+    },
+
+    {
+      q:"คำสั่งใดใช้แสดงข้อความออกทางหน้าจอในภาษา Python?",
+      a:[
+        "สำราญ แตงโม",
+        "สำราญ แตงโม",
+        "สำราญ แตงโม",
+        "สำราญ แตงโม"
+      ],
+      correct:0
+    },
+
+    {
+      q:"หากต้องการบันทึกไฟล์ที่กำลังเขียน ควรใช้คำสั่งใด?",
+      a:[
+        "สำราญ แตงโม",
+        "สำราญ แตงโม",
+        "สำราญ แตงโม",
+        "สำราญ แตงโม"
+      ],
+      correct:0
+    },
+
+    {
+      q:"สัญลักษณ์ # ในภาษา Python ใช้สำหรับอะไร?",
+      a:[
+        "สำราญ แตงโม",
+        "สำราญ แตงโม",
+        "สำราญ แตงโม",
+        "สำราญ แตงโม"
+      ],
+      correct:0
+    },
+
+    {
+      q:"หากโปรแกรมทำงานไม่หยุด ควรใช้ปุ่มใดใน Thonny?",
+      a:[
+        "สำราญ แตงโม",
+        "สำราญ แตงโม",
+        "สำราญ แตงโม",
+        "สำราญ แตงโม"
+      ],
+      correct:0
+    },
+
+    {
+      q:"ข้อใดเป็นชื่อตัวแปรที่เหมาะสมในภาษา Python?",
+      a:[
+        "สำราญ แตงโม",
+        "สำราญ แตงโม",
+        "สำราญ แตงโม",
+        "สำราญ แตงโม"
+      ],
+      correct:0
+    },
+
+    {
+      q:"คำสั่ง input() มีหน้าที่ใด?",
+      a:[
+        "สำราญ แตงโม",
+        "สำราญ แตงโม",
+        "สำราญ แตงโม",
+        "สำราญ แตงโม"
+      ],
+      correct:0
+    },
+
+    {
+      q:"หากพบข้อความสีแดงใน Shell ส่วนใหญ่มักหมายถึงอะไร?",
+      a:[
+        "สำราญ แตงโม",
+        "สำราญ แตงโม",
+        "สำราญ แตงโม",
+        "สำราญ แตงโม"
+      ],
+      correct:0
+    },
+
+    {
+      q:"Thonny เหมาะกับผู้เริ่มต้นเขียนโปรแกรมเพราะเหตุใด?",
+      a:[
+        "สำราญ แตงโม",
+        "สำราญ แตงโม",
+        "สำราญ แตงโม",
+        "สำราญ แตงโม"
+      ],
+      correct:0
+    },
+
+    {
+      q:"เมนู View ใน Thonny ใช้สำหรับจัดการเรื่องใดเป็นหลัก?",
+      a:[
+        "สำราญ แตงโม",
+        "สำราญ แตงโม",
+        "สำราญ แตงโม",
+        "สำราญ แตงโม"
+      ],
+      correct:0
+    },
+
+    {
+      q:"ข้อใดเป็นผลลัพธ์ของคำสั่ง print(2 + 3)?",
+      a:[
+        "สำราญ แตงโม",
+        "สำราญ แตงโม",
+        "สำราญ แตงโม",
+        "สำราญ แตงโม"
+      ],
+      correct:0
+    },
+
+    {
+      q:"ก่อนปิดโปรแกรม Thonny ควรทำสิ่งใด?",
+      a:[
+        "สำราญ แตงโม",
+        "สำราญ แตงโม",
+        "สำราญ แตงโม",
+        "สำราญ แตงโม"
+      ],
+      correct:0
+    },
+
+    {
+      q:"คำว่า Debug ใน Thonny เกี่ยวข้องกับเรื่องใด?",
+      a:[
+        "สำราญ แตงโม",
+        "สำราญ แตงโม",
+        "สำราญ แตงโม",
+        "สำราญ แตงโม"
+      ],
+      correct:0
+    },
+
+    {
+      q:"หากต้องการเปิดไฟล์โปรแกรมที่มีอยู่แล้ว ควรเลือกคำสั่งใด?",
+      a:[
+        "สำราญ แตงโม",
+        "สำราญ แตงโม",
+        "สำราญ แตงโม",
+        "สำราญ แตงโม"
+      ],
+      correct:0
+    },
+
+    {
+      q:"ข้อใดเป็นประโยชน์ของการจัดย่อหน้า (indentation) ใน Python?",
+      a:[
+        "สำราญ แตงโม",
+        "สำราญ แตงโม",
+        "สำราญ แตงโม",
+        "สำราญ แตงโม"
+      ],
+      correct:0
+    }
+
+  ]
+};
+
+
+/* ==========================================================
+   QUIZ SYSTEM
+   ========================================================== */
+
+let submitted = false;
+
+
+/* Initialize */
+
+function init(){
+
+  document.title = QUIZ.title;
+
+  document.getElementById("title").textContent =
+    QUIZ.title;
+
+  document.getElementById("eyebrow").textContent =
+    QUIZ.eyebrow;
+
+  document.getElementById("description").textContent =
+    QUIZ.description;
+
+  renderQuiz();
+
+}
+
+
+/* Render questions */
+
+function renderQuiz(){
+
+  const quiz =
+    document.getElementById("quiz");
+
+  quiz.innerHTML = "";
+
+  QUIZ.questions.forEach((item,i)=>{
+
+    const card =
+      document.createElement("section");
+
+    card.className = "card";
+
+    card.innerHTML =
+      `
+      <div class="q">
+        ข้อ ${i+1}. ${escapeHTML(item.q)}
+      </div>
+      ` +
+
+      item.a.map((choice,j)=>
+
+        `
+        <label class="opt">
+
+          <input
+            type="radio"
+            name="q${i}"
+            value="${j}"
+            onchange="updateProgress()"
+          >
+
+          ${escapeHTML(choice)}
+
+        </label>
+        `
+
+      ).join("");
+
+    quiz.appendChild(card);
+
+  });
+
+  updateProgress();
+
+}
+
+
+/* Progress bar */
+
+function updateProgress(){
+
+  let answered = 0;
+
+  QUIZ.questions.forEach((_,i)=>{
+
+    if(
+      document.querySelector(
+        `input[name="q${i}"]:checked`
+      )
+    ){
+
+      answered++;
+
+    }
+
+  });
+
+  const percentage =
+    (answered / QUIZ.questions.length) * 100;
+
+  document.getElementById("bar")
+    .style.width =
+      `${percentage}%`;
+
+}
+
+
+/* Submit */
+
+function submitQuiz(){
+
+  let score = 0;
+
+  let answered = 0;
+
+  QUIZ.questions.forEach((item,i)=>{
+
+    const el =
+      document.querySelector(
+        `input[name="q${i}"]:checked`
+      );
+
+    if(el){
+
+      answered++;
+
+      if(
+        Number(el.value) === item.correct
+      ){
+
+        score += QUIZ.pointsPerQuestion;
+
+      }
+
+    }
+
+  });
+
+
+  if(
+    answered <
+    QUIZ.questions.length
+  ){
+
+    alert(
+      `กรุณาตอบให้ครบ ${QUIZ.questions.length} ข้อก่อนส่งคำตอบ`
+    );
+
+    return;
+
+  }
+
+
+  submitted = true;
+
+
+  document.getElementById("score")
+    .textContent = score;
+
+
+  document.getElementById("total")
+    .textContent =
+      QUIZ.questions.length *
+      QUIZ.pointsPerQuestion;
+
+
+  document.getElementById("resultText")
+    .textContent =
+      score >= QUIZ.passScore
+
+      ? `ผ่านเกณฑ์ ${QUIZ.passScore} คะแนน`
+
+      : `ยังไม่ผ่านเกณฑ์ ${QUIZ.passScore} คะแนน`;
+
+
+  document.getElementById("result")
+    .style.display = "block";
+
+
+  document.getElementById("result")
+    .scrollIntoView({
+      behavior:"smooth"
+    });
+
+}
+
+
+/* Reset */
+
+function resetQuiz(){
+
+  submitted = false;
+
+  document.getElementById("result")
+    .style.display = "none";
+
+
+  document
+    .querySelectorAll(
+      'input[type="radio"]'
+    )
+    .forEach(
+      x => x.checked = false
+    );
+
+
+  updateProgress();
+
+
+  window.scrollTo({
+    top:0,
+    behavior:"smooth"
+  });
+
+}
+
+
+/* Security */
+
+function escapeHTML(str){
+
+  return String(str).replace(
+    /[&<>'"]/g,
+
+    c => ({
+      "&":"&amp;",
+      "<":"&lt;",
+      ">":"&gt;",
+      "'":"&#39;",
+      '"':"&quot;"
+    }[c])
+
+  );
+
+}
+
+
+/* Start */
+
+init();
+
+</script>
+
+</body>
+</html>
+```
